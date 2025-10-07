@@ -9,28 +9,33 @@ using UnityEngine.UIElements; // QUAN TRỌNG để dùng Light2D
 
 public class GameManager : MonoBehaviour
 {
+    //Phần quản lý nền di chuyển
     [SerializeField] private MeshRenderer groundMeshRenderer;
     [SerializeField] private MeshRenderer backgroundMeshRenderer;
 
     public static GameManager Instance;
 
+    //Trạng thái của game
     [HideInInspector] public bool batDauGame = false;
     [HideInInspector] public bool ketThucGame = false;
 
+    //Cài đặt tốc độ của game 
     [Header("Speeding của game")]
-    public float startingSpeed = 5f;
-    public float speedIncreasePerSecond = 0.1f;
-    public float currentScoreIncreaseSpeedMultiplayer = 2f;
+    public float startingSpeed = 5f; //Tốc độ ban đầu
+    public float speedIncreasePerSecond = 0.1f; //Tăng tốc theo thời gian 0.1 giây
+    public float currentScoreIncreaseSpeedMultiplayer = 2f; //Hệ số tăng điểm theo tốc độ
 
+    //Quản lý điểm số game
     [Header("Điểm số của người chơi")]
-    public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI diamondScore;
-    public GameObject gameEndScreen;
+    public TextMeshProUGUI scoreText; //Hiển thị điểm hiện tại + cao nhất người chơi 
+    public TextMeshProUGUI diamondScore; //Hiển thị kim cương ở màn hình kết thúc
+    public GameObject gameEndScreen; //Giao diện khi kết thúc game
 
+    //Quản lý chướng ngại vật(trap) và kim cương(diamond)
     [Header("Thời gian để hiện chướng ngại vật trong game")]
     public float minTimeDelayBetweenTrap = 2f;
     public float maxTimeDelayBetweenTrap = 2f;
-    public float trapSpeedMultiplier = 3f;
+    public float trapSpeedMultiplier = 3f; //Hệ số tốc độ di chuyển của trap
 
     [Header("Những kiểu chướng ngại vật")]
     public GameObject[] allTreeInGround;
@@ -40,6 +45,7 @@ public class GameManager : MonoBehaviour
     public GameObject[] allThickingTrap;
     public GameObject[] allReptileTrap;
 
+    //Điểm spawn trap
     public Transform treeTrapSpamPoint;
     public Transform stoneTrapSpamPoint;
     public Transform animalTrapSpamPoint;
@@ -49,11 +55,15 @@ public class GameManager : MonoBehaviour
 
     private List<GameObject> allCurrentTrap = new List<GameObject>();
 
+
+    //Quản lý âm thanh
     [Header("SPX")]
     [SerializeField] public AudioSource audioSource;
-    public AudioClip pointSPX;
+    public AudioClip pointSPX; //Âm thanh khi đạt mốc điểm
     public AudioClip diamondSPX; //Âm thanh khi ăn diamond
 
+
+    //Biển lưu điểm của người chơi
     [Header("UI Điểm số")]
     public TextMeshProUGUI finalScoreText;
 
@@ -61,11 +71,13 @@ public class GameManager : MonoBehaviour
     private int diemSoCao = 0;
     private float currentDiemso = 0;
 
+    //Biến chuyển cảnh ngày/đêm
     [Header("Global Light chuyển cảnh")]
     [SerializeField] private Light2D globalLight2D;
     private bool isNight = false;
-    private int nextBackgroundChangeScene = 100;
+    private int nextBackgroundChangeScene = 100; //Sau mỗi 100 điểm -> sẽ đổi từ ngày sang đêm và ngược lại
 
+    //Biến kim cương(diamond)
     [Header("Kim cương")]
     public TextMeshProUGUI diamondText;
     private int diamondAmount = 0;
@@ -75,20 +87,23 @@ public class GameManager : MonoBehaviour
 
     public float diamondSpeedMultiplier = 1.5f; // ← Tốc độ riêng cho kim cương
 
-    private enum SpawnType { Diamond, Trap }
+    private enum SpawnType { Diamond, Trap } //Loại vật thể sẽ spawn tiếp theo
     private SpawnType nextSpawn = SpawnType.Diamond;
 
-    private float spawnTimer = 2f;
+    private float spawnTimer = 2f; //Thời gian chờ giữa các lần spawn
 
+    //Biến hiện kiểm tra FPS
     [Header("Check FPS(Frame Per Second)")]
     [SerializeField] private TextMeshProUGUI fpsText;
     private float deltaTime = 0.0f;
 
+    //Xử lý kim cương(diamond)
     public void AddDiamond(int amount)
     {
-        diamondAmount += amount;
+        diamondAmount += amount; //Cộng thêm kim cương -> player chạm vào kim cương
         UpdateDiamondUI();
 
+        //Phát âm thanh khi player ăn kim cương
         if(diamondSPX != null)
         {
             audioSource.PlayOneShot(diamondSPX);
@@ -97,6 +112,7 @@ public class GameManager : MonoBehaviour
 
     public void RemoveDiamond(GameObject diamond)
     {
+        //Xóa kim cương khỏi scene game khi đã ăn từ plauer
         if (allCurrentDiamonds.Contains(diamond))
         {
             allCurrentDiamonds.Remove(diamond);
@@ -105,19 +121,22 @@ public class GameManager : MonoBehaviour
 
     private void UpdateDiamondUI()
     {
-        diamondText.text = diamondAmount.ToString("D3");
+        diamondText.text = diamondAmount.ToString("D3"); //Hiển thị số lần ăn diamond dạng 3 chữ số(001)
     }
 
-
+    //Hàm awake
     private void Awake()
     {
         Instance = this;
         currentSpeed = startingSpeed;
 
+        //Lấy điểm cao nhất lưu từ màn chơi trước
         if (PlayerPrefs.HasKey("Điểm số cao"))
         {
             diemSoCao = PlayerPrefs.GetInt("Điểm số cao");
         }
+
+        //Thiết lập FPS
         QualitySettings.vSyncCount = 0; 
         int savedFps = PlayerPrefs.GetInt("FPSSetting", 60);
         Application.targetFrameRate = savedFps;
@@ -127,6 +146,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("FPS hiện tại: " + Application.targetFrameRate);
     }
 
+    //Hàm hiện màn hình kết thúc game
     public void ShowEndScreen()
     {
         gameEndScreen.SetActive(true);
@@ -134,10 +154,12 @@ public class GameManager : MonoBehaviour
         diamondScore.text = $": {diamondAmount:D3}";
     }
 
+    //Hàm Update
     private void Update()
     {
         if (batDauGame && !ketThucGame)
         {
+            //Bộ đếm thời gian spawn
             spawnTimer -= Time.deltaTime;
             if(spawnTimer <= 0f)
             {
@@ -158,11 +180,13 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            //Di chuyển tất cả chướng ngại vật sang bên trái
             foreach (GameObject trap in allCurrentTrap)
             {
                 trap.transform.Translate(Vector3.left * currentSpeed * Time.deltaTime * trapSpeedMultiplier);
             }
 
+            //Di chuyển kim cương
             for (int i = allCurrentDiamonds.Count - 1; i >= 0; i--)
             {
                 if (allCurrentDiamonds[i] == null)
@@ -175,27 +199,33 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-
+            //Tăng tốc độ game theo thời gian
             currentSpeed += Time.deltaTime * speedIncreasePerSecond;
+
+            //Cuộn nền (scroll texture)
             groundMeshRenderer.material.mainTextureOffset += new Vector2(currentSpeed * Time.deltaTime, 0);
             backgroundMeshRenderer.material.mainTextureOffset += new Vector2(currentSpeed * Time.deltaTime, 0);
 
+            //Cập nhật điểm số
             int lancuoi = Mathf.RoundToInt(currentDiemso);
             currentDiemso += currentSpeed * Time.deltaTime * currentScoreIncreaseSpeedMultiplayer;
-
             int scoreInt = Mathf.RoundToInt(currentDiemso);
+
+            //Sau mỗi lần player đạt 100 điểm -> đổi cảnh sang sáng/tối
             if (scoreInt >= nextBackgroundChangeScene)
             {
                 StartCoroutine(SwitchLighting());
                 nextBackgroundChangeScene += 100;
             }
 
+            //Phát ẩm thanh mỗi khi đạt mốc 1000 điểm
             if (scoreInt > lancuoi && scoreInt % 1000 == 0)
             {
                 audioSource.clip = pointSPX;
                 audioSource.Play();
             }
 
+            //Lưu điểm cao nhất
             if (scoreInt > diemSoCao)
             {
                 diemSoCao = scoreInt;
@@ -205,6 +235,7 @@ public class GameManager : MonoBehaviour
             UpdateScore();
         }
 
+        //Tính và hiển thị FPS
         deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
         float fps = 1.0f / deltaTime;
         if(fpsText != null)
@@ -213,6 +244,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //Sinh ngẫu nhiên TRAP
     void SpawnRandomTrap()
     {
         GameObject newTrap = null;
@@ -234,15 +266,17 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            //Lúc đầu chỉ xuất hiện cây(đơn giản)
             newTrap = Instantiate(allTreeInGround[Random.Range(0, allTreeInGround.Length)], treeTrapSpamPoint.position, Quaternion.identity);
         }
 
         allCurrentTrap.Add(newTrap);
     }
 
+    //Hàm hiện kim cương
     void SpawnDiamond()
     {
-        if (Random.value > 0.1f)
+        if (Random.value > 0.1f) //Xác suất xuất hiện 90%
         {
             GameObject diamond = Instantiate(diamondPrefab[0], diamondSpampoint.position, Quaternion.identity);
             allCurrentDiamonds.Add(diamond);
@@ -268,6 +302,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //Hàm khởi tạo ánh sáng ban đầu
     private void Start()
     {
         // ánh sáng ban đầu dựa theo setting đã chọn ở menu
@@ -276,14 +311,16 @@ public class GameManager : MonoBehaviour
         if (isNight)
             globalLight2D.color = new Color(0.2f, 0.2f, 0.4f, 1f);// đêm
         else
-            globalLight2D.color = Color.white;
+            globalLight2D.color = Color.white; //Ban ngày
     }
 
+    //Hàm cập nhật giao diện điểm
     private void UpdateScore()
     {
         scoreText.SetText($"HI {diemSoCao:D5}  {Mathf.RoundToInt(currentDiemso):D5}");
     }
 
+    //Hàm chuyển Scene -> khi mà người chơi bấm nút restart
     public void RestartGame()
     {
         SceneManager.LoadScene(1);
