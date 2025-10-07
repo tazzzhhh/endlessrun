@@ -7,7 +7,10 @@ using UnityEngine.UI;
 
 public class SettingPause : MonoBehaviour
 {
+    //Hàm về màn hình dừng game
     [SerializeField] GameObject pauseMenu;
+
+    //Dòng hàm về âm thanh
     [Header("Âm Thanh")]
     [SerializeField] private AudioMixer audioMixer;
     [SerializeField] private Slider backgroundSlider;
@@ -16,6 +19,7 @@ public class SettingPause : MonoBehaviour
     private const string BackgroundVolumeKey = "BackgroundVolume";
     private const string SFXVolumeKey = "SFXVolume";
 
+    //Hàm chỉ định player đứng yên - pause game
     [Header("Chỉnh Player đứng yên khi pause")]
     [SerializeField] private playerMovement player;
 
@@ -24,6 +28,7 @@ public class SettingPause : MonoBehaviour
         LoadVolumeSettings();
     }
 
+    //Ứng dụng Pause
     public void Pause()
     {
         pauseMenu.SetActive(true);
@@ -32,6 +37,7 @@ public class SettingPause : MonoBehaviour
             player.isPaused = true;
     }
 
+    //Hàm xử lí nút bấm Resume(Trở lại game)
     public void Resume()
     {
         pauseMenu.SetActive(false);
@@ -40,12 +46,14 @@ public class SettingPause : MonoBehaviour
             player.isPaused = false;
     }
 
+    //Hàm xử lý nút bấm restart
     public void Restart()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         Time.timeScale = 1;
     }
 
+    //Hàm xử lý nút bấm BackMenu(trở lại màn hình chính game)
     public void BackMenu()
     {
         SceneManager.LoadScene("LoadingScene");
@@ -53,6 +61,7 @@ public class SettingPause : MonoBehaviour
         Time.timeScale = 1;
     }
 
+    //Hàm xử lý chỉnh nhạc nền của game(backgroundVolume)
     public void SetBackgroundVolume()
     {
         float volume = backgroundSlider.value;
@@ -60,6 +69,7 @@ public class SettingPause : MonoBehaviour
         PlayerPrefs.SetFloat(BackgroundVolumeKey, volume); // Lưu âm lượng background đã chỉnh
     }
 
+    //Hàm xử lý chỉnh âm thanh nền của game(spxVolume)
     public void SetSFXVolume()
     {
         float volume = spxSlider.value;
