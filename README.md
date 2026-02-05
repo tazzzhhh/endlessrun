@@ -9,7 +9,7 @@
 * [cite_start]**Data Persistence:** Managed high scores using **PlayerPrefs** to maintain player engagement[cite: 52].
 * [cite_start]**Dynamic UI:** Designed a responsive HUD and Game Over menus using Unity UGUI[cite: 53].
 
-## 💡 Key Learnings (IELTS Focus)
+## 💡 Key Learnings
 This project allowed me to **address performance issues** through **optimization techniques**. I also **enhanced the user experience** by creating a dynamic and interactive UI.
 
 ## 📱 Mobile Optimization
