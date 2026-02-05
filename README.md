@@ -11,3 +11,8 @@
 
 ## 💡 Key Learnings (IELTS Focus)
 This project allowed me to **address performance issues** through **optimization techniques**. I also **enhanced the user experience** by creating a dynamic and interactive UI.
+
+## 📱 Mobile Optimization
+* [cite_start]**Performance:** Leveraged **Object Pooling**  to ensure a consistent 60 FPS on mid-range Android devices.
+* **Input System:** Integrated touch controls for seamless jumping and dodging mechanics.
+* **Storage:** Minimized build size through texture compression and efficient asset management.
